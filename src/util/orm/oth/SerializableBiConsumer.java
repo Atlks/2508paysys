@@ -1,0 +1,9 @@
+package util.orm.oth;
+
+import java.io.Serializable;
+
+// 泛型接口，继承 Serializable，方便获取 SerializedLambda
+@FunctionalInterface
+public interface SerializableBiConsumer<T, U> extends Serializable{
+    void accept(T t, U u) throws Throwable;
+}

@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Form</title>
+</head>
+<!--
+    http://localhost:5000/uploads1016/e67ca2d7-d200-4198-9b24-e1fd6d4e5662.jpg
+    https://localhost/api/uploads1016/e67ca2d7-d200-4198-9b24-e1fd6d4e5662.jpg
+    -->
+<body>
+    <h1>Upload Form</h1>
+    <form action="http://localhost:8888/upload" method="post" enctype="multipart/form-data">
+
+        <!-- File Field (Multiple Upload) -->
+        <label for="file">Upload Images:</label>
+        <input type="file" id="file" name="file" accept="image/*" multiple>
+        <br><br>
+
+        <!-- Submit Button -->
+        <input type="submit" value="Submit">
+    </form>
+</body>
+
+</html>

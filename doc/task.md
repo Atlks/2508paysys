@@ -1,0 +1,5 @@
+
+
+兼容mysql  mssql
+
+
