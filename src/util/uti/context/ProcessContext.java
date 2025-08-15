@@ -2,6 +2,8 @@ package util.uti.context;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.mongodb.client.MongoClient;
+import com.mongodb.client.MongoDatabase;
 import com.sun.net.httpserver.Authenticator;
 import com.sun.net.httpserver.HttpServer;
 import io.javalin.Javalin;
@@ -15,6 +17,7 @@ import org.hibernate.SessionFactory;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
 import util.msc.Dtoo;
 import util.msc.FunType;
 import util.rest.RequestHandler;
@@ -73,6 +76,9 @@ public  static HttpServer httpServer;
     public static SqlSessionFactory sqlSessionFactory;
     public static Configuration config;
     public static Map configDb=new HashMap();
+    public static MongoDatabase mgdbDb;
+    public static MongoClient mgClient;
+    public static SimpleMongoClientDatabaseFactory mgdbFactory;
 
 
     public static RequestHandler getFun(FunType funRegName) {

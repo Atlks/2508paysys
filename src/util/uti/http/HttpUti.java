@@ -4,7 +4,6 @@ import com.sun.net.httpserver.HttpExchange;
 import io.javalin.http.Context;
 import io.javalin.http.HandlerType;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.core.MediaType;
 import util.uti.context.ProcessContext;
 import util.rest.RequestHandler;
@@ -12,10 +11,10 @@ import util.rest.RequestHandler;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 
-import static util.orm.oth.util2026.setCrossDomain;
+// static util.orm.oth.util2026.setCrossDomain;
+import static secury.xss.XssUti.valdt;
 import static util.uti.Uti.*;
 import static util.uti.Uti.encodeJson;
 import static util.uti.context.ThreadContext.*;
@@ -144,32 +143,32 @@ public class HttpUti {
     }
 
 
-    /**
-     * write
-     *
-     * @param rzt
-     * @param httpExchange
-     * @throws IOException
-     */
-    public static void write(Object rzt, HttpExchange httpExchange) throws IOException {
-        setCrossDomain(httpExchange);
-        // HttpExchange ctx= currHttpExchange.get();
-        String cttType2 = String.valueOf(httpExchange.getResponseHeaders().get("Content-Type"));
-
-//        if (cttType2.contains(MediaType.APPLICATION_JSON)) {
+//    /**
+//     * write
+//     *
+//     * @param rzt
+//     * @param httpExchange
+//     * @throws IOException
+//     */
+//    public static void write(Object rzt, HttpExchange httpExchange) throws IOException {
+//        setCrossDomain(httpExchange);
+//        // HttpExchange ctx= currHttpExchange.get();
+//        String cttType2 = String.valueOf(httpExchange.getResponseHeaders().get("Content-Type"));
 //
+////        if (cttType2.contains(MediaType.APPLICATION_JSON)) {
+////
+////
+////        }
+//        if (cttType2.contains(MediaType.TEXT_PLAIN)) {
 //
+//            writeTxt(rzt.toString(),httpExchange);
+//        }else
+//        {
+//
+//            writeJson((rzt),httpExchange);
+//           // wrtJson(encodeJson(rzt));
 //        }
-        if (cttType2.contains(MediaType.TEXT_PLAIN)) {
-
-            writeTxt(rzt.toString(),httpExchange);
-        }else
-        {
-
-            writeJson((rzt),httpExchange);
-           // wrtJson(encodeJson(rzt));
-        }
-    }
+//    }
     public static void setThrdHttpContext(HttpExchange exchange) throws IOException {
         HttpHeader value = extractHeaders4sdkweb(exchange);
         System.out.println("setThrdHttpContext::"+encodeJson(value));
@@ -328,29 +327,29 @@ public class HttpUti {
         return queryParams;
     }
 
-    public static void writeTxt(String s,@NotNull HttpExchange httpExchange) throws IOException {
-        setCrossDomain(httpExchange);
-        setContentType(MediaType.TEXT_PLAIN + "; charset=UTF-8");
-        write((s),httpExchange);
-    }
-
-    public static void writeJson(Object s,@NotNull HttpExchange httpExchange) throws IOException {
-        // 设置跨域响应头
-        setCrossDomain(httpExchange);
-        setContentType(MediaType.APPLICATION_JSON + "; charset=UTF-8");
-        write(encodeJson(s),httpExchange);
-    }
-    public static void write(String s, @NotNull HttpExchange httpExchange) throws IOException {
-
-        if (httpExchange != null) {
-            setCrossDomain(httpExchange);
-            byte[] response = s.getBytes(StandardCharsets.UTF_8);
-            httpExchange.sendResponseHeaders(200, response.length);
-            try (OutputStream os = httpExchange.getResponseBody()) {
-                os.write(response);
-            }
-        }
-    }
+//    public static void writeTxt(String s,@NotNull HttpExchange httpExchange) throws IOException {
+//        setCrossDomain(httpExchange);
+//        setContentType(MediaType.TEXT_PLAIN + "; charset=UTF-8");
+//        write((s),httpExchange);
+//    }
+//
+//    public static void writeJson(Object s,@NotNull HttpExchange httpExchange) throws IOException {
+//        // 设置跨域响应头
+//        setCrossDomain(httpExchange);
+//        setContentType(MediaType.APPLICATION_JSON + "; charset=UTF-8");
+//        write(encodeJson(s),httpExchange);
+//    }
+//    public static void write(String s, @NotNull HttpExchange httpExchange) throws IOException {
+//
+//        if (httpExchange != null) {
+//            setCrossDomain(httpExchange);
+//            byte[] response = s.getBytes(StandardCharsets.UTF_8);
+//            httpExchange.sendResponseHeaders(200, response.length);
+//            try (OutputStream os = httpExchange.getResponseBody()) {
+//                os.write(response);
+//            }
+//        }
+//    }
 
 //    /**
 //     * 输出数据

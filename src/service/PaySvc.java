@@ -5,27 +5,21 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import dtoVo.Stat;
 import jakarta.annotation.security.PermitAll;
 import jakarta.persistence.EntityNotFoundException;
 import model.*;
 import model.payPlatform.WechatPayNotifyDTO;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import util.ex.INVALID_PARAMETER;
-import util.ex.UnauthorizedNonceBlank;
 import util.ex.UnauthorizedNonceNull;
 import util.ex.paypltfm.MCH_NOT_EXISTS;
 import util.ex.paypltfm.OUT_TRADE_NO_USED;
-import util.ex.paypltfm.UnauthorizedNonceReplay;
 import util.msc.HttpUti;
 import util.uti.context.ProcessContext;
 import util.uti.context.ThreadContext;
 
-import java.io.File;
 import java.security.NoSuchAlgorithmException;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Map;
 
@@ -33,11 +27,11 @@ import static cn.hutool.core.date.DateUtil.now;
 import static org.codehaus.groovy.runtime.EncodingGroovyMethods.md5;
 import static util.StrUti.extractLastPathSegment;
 import static util.algo.GetUti.getUuid;
-import static util.algo.NullUtil.isBlank;
 import static util.msc.HttpUti.convertToJson;
+import static util.secury.SecuryUti.chkNonce;
+import static util.secury.SecuryUti.chkTmstmpTimeWin;
 import static util.secury.SignUti.getSign;
 import static util.uti.Uti.encodeJson;
-import static util.uti.Uti.write;
 import static util.uti.orm.JpaUti.*;
 
 /**
@@ -48,6 +42,7 @@ public class PaySvc {
 
     /**
      * 发起订单
+     * http://localhost:8888/v3/pay/transactions/native?out_trade_no=66671&amount=88&mchid=m666&pay_timestamp=2025-08-04T12%3a09%3a25.9582898%2b08%3a00&pay_nonce=222458
      * http://localhost:8888/v3/pay/transactions/native?out_trade_no=666&amount=88&mchid=mmmcht_id
      * http://localhost:8888/apiv1/pay?out_trade_no=666&total_amount=88
      *
@@ -103,49 +98,6 @@ public class PaySvc {
 
         // copyPropertys(tx,tx);
         //   System.out.println("fun svUHdl");
-
-    }
-
-    private static void chkNonce(String nonce) throws UnauthorizedNonceReplay, UnauthorizedNonceNull, UnauthorizedNonceBlank {
-
-        if (isBlank(nonce))
-            throw new UnauthorizedNonceBlank();
-        String pathname = "nonce_" + nonce;
-        if (new File(pathname).exists())
-            throw new UnauthorizedNonceReplay("UnauthorizedNonceReplay="+nonce);
-        write(pathname, "nonce111");
-
-    }
-
-    /**
-     * 验证 timestamp 是否在有效时间窗口内
-     *
-     * @param timestamp ISO 8601 格式的时间戳字符串（例如：2025-08-04T11:05:00+08:00）
-     * @return 是否在有效期内
-     */
-    private static boolean chkTmstmpTimeWin(String timestamp, long MAX_REQUEST_AGE_MINUTES) throws DateTimeChkException, INVALID_PARAMETER {
-
-        if (isBlank(timestamp))
-            throw new INVALID_PARAMETER("pay_timestamp");
-
-        // 最大允许时间差（单位：分钟）
-        //  long MAX_REQUEST_AGE_MINUTES = 35;
-
-
-
-            OffsetDateTime requestTime = OffsetDateTime.parse(timestamp);
-            OffsetDateTime now = OffsetDateTime.now();
-
-            Duration diff = Duration.between(requestTime, now);
-
-            boolean b = !diff.isNegative() && diff.toMinutes() <= MAX_REQUEST_AGE_MINUTES;
-
-            if (b == false)
-                throw new DateTimeChkException();
-
-
-            return b;
-
 
     }
 

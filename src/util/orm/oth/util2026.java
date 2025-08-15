@@ -1059,130 +1059,130 @@ public class util2026 {
 //            throw new PwdNotEqExceptn("");
 //    }
 
-    public static void wrtRespErrNoex(HttpExchange exchange, String responseTxt) {
-        try {
-            wrtRespErr(exchange, responseTxt);
-        } catch (IOException e) {
-            e.printStackTrace();
+//    public static void wrtRespErrNoex(HttpExchange exchange, String responseTxt) {
+//        try {
+//            wrtRespErr(exchange, responseTxt);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//
+//        }
+//    }
 
-        }
-    }
-
-    public static void wrtRespErr(HttpExchange exchange, String responseTxt) throws IOException {
-        System.out.println("wrtRespErr(resptxt=" + responseTxt);
-
-        setCrossDomain(exchange);
-        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
-        byte[] responseBytes = responseTxt.getBytes(StandardCharsets.UTF_8);
-        int statusCode = 500;
-        exchange.sendResponseHeaders(statusCode, responseBytes.length);
-
-        try (OutputStream os = exchange.getResponseBody()) { // try-with-resources
-            os.write(responseBytes);
-        } catch (IOException e) {
-            System.err.println("Error writing response: " + e.getMessage()); // Use System.err for errors
-            // 或者使用日志框架进行更详细的日志记录
-        }
-
-
-    }
+//    public static void wrtRespErr(HttpExchange exchange, String responseTxt) throws IOException {
+//        System.out.println("wrtRespErr(resptxt=" + responseTxt);
+//
+//        setCrossDomain(exchange);
+//        exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=utf-8");
+//        byte[] responseBytes = responseTxt.getBytes(StandardCharsets.UTF_8);
+//        int statusCode = 500;
+//        exchange.sendResponseHeaders(statusCode, responseBytes.length);
+//
+//        try (OutputStream os = exchange.getResponseBody()) { // try-with-resources
+//            os.write(responseBytes);
+//        } catch (IOException e) {
+//            System.err.println("Error writing response: " + e.getMessage()); // Use System.err for errors
+//            // 或者使用日志框架进行更详细的日志记录
+//        }
+//
+//
+//    }
 
 
     public static void sleep(int slpMs) throws InterruptedException {
         Thread.sleep(slpMs);
     }
+//
+//    /**
+//     * if restcontrole ret json mode,,,   controle mode,ret html mode
+//     *
+//     * @param exchange
+//     * @param responseTxt
+//     * @throws IOException
+//     */
+//    @Deprecated
+//    public static void wrtResp(HttpExchange exchange, String responseTxt) throws IOException {
+//
+//        System.out.println("wrtResp(resptxt=" + responseTxt);
+//        if (responseTxt == null)
+//            responseTxt = "";
+//
+//        // 设置跨域响应头
+//        setCrossDomain(exchange);
+//
+//        //Class ctrlCls ;= curCtrlCls.get();
+////        if (ctrlCls != null && ctrlCls.isAnnotationPresent(Controller.class)) {
+////            // 输出为html
+////            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
+////        } else
+//
+//        {
+//            //输出为json
+//            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
+//        }
+//
+//
+//        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
+//        OutputStream os = exchange.getResponseBody();
+//        os.write(responseTxt.getBytes());
+//        os.close();
+//    }
 
-    /**
-     * if restcontrole ret json mode,,,   controle mode,ret html mode
-     *
-     * @param exchange
-     * @param responseTxt
-     * @throws IOException
-     */
-    @Deprecated
-    public static void wrtResp(HttpExchange exchange, String responseTxt) throws IOException {
+//    public static void setCrossDomain(HttpExchange exchange) {
+//        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
+//        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+//        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+//        exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
+//    }
 
-        System.out.println("wrtResp(resptxt=" + responseTxt);
-        if (responseTxt == null)
-            responseTxt = "";
 
-        // 设置跨域响应头
-        setCrossDomain(exchange);
+//    public static void wrtResp(HttpExchange exchange, String responseTxt,  String conttType ) throws IOException {
+//
+//        System.out.println("wrtResp(resptxt=" + responseTxt);
+//        if (responseTxt == null)
+//            responseTxt = "";
+//
+//        // 设置跨域响应头
+//        setCrossDomain(exchange);
+//
+//     //   Class ctrlCls = curCtrlCls.get();
+////        if (ctrlCls != null && ctrlCls.isAnnotationPresent(Controller.class)) {
+////            // 输出为html
+////            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
+////        } else
+//
+//        {
+//            //输出为json
+//      //      String conttType = "";
+//            exchange.getResponseHeaders().set("Content-Type", conttType);
+//        }
+//
+//
+//        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
+//        OutputStream os = exchange.getResponseBody();
+//        os.write(responseTxt.getBytes());
+//        os.close();
+//    }
 
-        //Class ctrlCls ;= curCtrlCls.get();
-//        if (ctrlCls != null && ctrlCls.isAnnotationPresent(Controller.class)) {
-//            // 输出为html
+
+//    public static void wrtRespHtml(HttpExchange exchange, String responseTxt) throws IOException {
+//
+//        System.out.println("wrtResp(resptxt=" + responseTxt);
+//        if (responseTxt == null)
+//            responseTxt = "";
+//
+//        // 设置跨域响应头
+//        setCrossDomain(exchange);
+//
+//        // 输出为html
 //            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
-//        } else
-
-        {
-            //输出为json
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=utf-8");
-        }
-
-
-        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseTxt.getBytes());
-        os.close();
-    }
-
-    public static void setCrossDomain(HttpExchange exchange) {
-        exchange.getResponseHeaders().set("Access-Control-Allow-Origin", "*");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-        exchange.getResponseHeaders().set("Access-Control-Allow-Credentials", "true");
-    }
-
-
-    public static void wrtResp(HttpExchange exchange, String responseTxt,  String conttType ) throws IOException {
-
-        System.out.println("wrtResp(resptxt=" + responseTxt);
-        if (responseTxt == null)
-            responseTxt = "";
-
-        // 设置跨域响应头
-        setCrossDomain(exchange);
-
-     //   Class ctrlCls = curCtrlCls.get();
-//        if (ctrlCls != null && ctrlCls.isAnnotationPresent(Controller.class)) {
-//            // 输出为html
-//            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
-//        } else
-
-        {
-            //输出为json
-      //      String conttType = "";
-            exchange.getResponseHeaders().set("Content-Type", conttType);
-        }
-
-
-        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseTxt.getBytes());
-        os.close();
-    }
-
-
-    public static void wrtRespHtml(HttpExchange exchange, String responseTxt) throws IOException {
-
-        System.out.println("wrtResp(resptxt=" + responseTxt);
-        if (responseTxt == null)
-            responseTxt = "";
-
-        // 设置跨域响应头
-        setCrossDomain(exchange);
-
-        // 输出为html
-            exchange.getResponseHeaders().set("Content-Type", "text/html; charset=utf-8");
-
-
-
-        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
-        OutputStream os = exchange.getResponseBody();
-        os.write(responseTxt.getBytes());
-        os.close();
-    }
+//
+//
+//
+//        exchange.sendResponseHeaders(200, responseTxt.getBytes().length);
+//        OutputStream os = exchange.getResponseBody();
+//        os.write(responseTxt.getBytes());
+//        os.close();
+//    }
 
     public static String getSqlPrmVal(Object o) {
         if (o.getClass() == String.class)

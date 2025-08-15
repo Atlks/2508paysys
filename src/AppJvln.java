@@ -1,3 +1,4 @@
+import cfg.AppCfg;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -14,8 +15,15 @@ import model.MerchatMapper;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.hibernate.SessionFactory;
+import secury.EcsLogEntry;
+import secury.auditlog.PermissionChangeLog;
+import secury.auditlog.SystemConfigChangeLog;
+import secury.captch.CaptchHdr;
+import secury.log.WormLogUti;
 import service.*;
 // util.RegMapContext;
+import util.model.LoginLog;
+import util.model.OperationLog;
 import util.model.admin.Admin;
 import util.model.secury.ApiAuditLog;
 import util.rest.ApiGatewayResponse;
@@ -29,23 +37,13 @@ import util.uti.orm.TxMng;
 // static util.CfgSvs.getSessionFactory;
 
 // static util.store.HbntUtil.persist;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static cfg.AppCfg.iniMgdb;
 import static java.lang.System.out;
-import static util.algo.GetUti.getFilename;
 import static util.algo.GetUti.getUUid;
-import static util.algo.JarClassScanner.getPrjPath;
 import static util.auth.AuthService.needLoginAuth;
 import static util.auth.JwtUtil.validateToken;
 import static util.misc.util2026.getStackTraceAsString;
@@ -64,7 +62,14 @@ public class AppJvln {
 
 
     public static void main(String[] args) throws Exception {
+        WormLogUti.logWorm("启动了", "/bootlog.log");
 
+        EcsLogEntry elelog=new EcsLogEntry();
+        elelog.setEventAction("boot");
+        WormLogUti.logWorm(encodeJson(elelog), "/bootlog.log");
+
+
+        iniMgdb();
         //---auto crt db
         String jdbcUrl = ProcessContext.config.getString("jdbc.url");
         String dbname = getDatabaseFileName4mysql(jdbcUrl);
@@ -105,7 +110,7 @@ public class AppJvln {
 
 
         testAddMcht();
-
+        testAddDt();
 
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new JavaTimeModule());
@@ -143,17 +148,134 @@ public class AppJvln {
         //
     }
 
-    private static void testAddMcht() {
 
+
+    private static void testAddDt() {
         try {
-            Merchat mcht = new Merchat();
-            mcht.setMchtId("m666");
-            mcht.privatekey = "key666";
+            SystemConfigChangeLog ol=new SystemConfigChangeLog();
+            ol.setRemark("增加管理员");
+            ol.setChangeSource("chg source");
+            ol.setConfigKey("cfg key");
+            ol.setValueBefore("val bef");
+            ol.setValueAfter("after val");
+           // ol.setDescription("备注"+getUUid());
+            ol.setChangeTime(LocalDateTime.now());
+            ol.setOperatorName("adm");
+
+            /// ol.setUserId("uid");
+            ol.setTraceId(getUUid());
 
             RequestHandler<EntityManager, Object> entityManagerObjectRequestHandler = em -> {
 
                 //mercht Svs..add(mcht)
                 //Merchat m=new Merchat();
+
+
+                persist(ol);
+                return ol;
+            };
+            callInTransaction(entityManagerObjectRequestHandler);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+
+
+        try {
+            PermissionChangeLog ol=new PermissionChangeLog();
+            ol.setActionType("增加管理员");
+            ol.setDescription("备注"+getUUid());
+            ol.setChangeTime(LocalDateTime.now());
+            ol.setOperatorName("adm");
+            ol.setRoleAfter("admin");
+            ol.setRoleBefore("op");
+            ol.setTargetUserName("user111");
+           /// ol.setUserId("uid");
+            ol.setTraceId(getUUid());
+
+            RequestHandler<EntityManager, Object> entityManagerObjectRequestHandler = em -> {
+
+                //mercht Svs..add(mcht)
+                //Merchat m=new Merchat();
+
+
+                persist(ol);
+                return ol;
+            };
+            callInTransaction(entityManagerObjectRequestHandler);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            LoginLog ol=new LoginLog();
+            ol.setOs("win");
+            ol.setUsername("admin" );
+            ol.setLoginIp("ip");
+            ol.setLoginLocation("loc");
+            ol.setLoginTime(LocalDateTime.now());
+            ol.setTraceId(getUUid());
+          //  ol.setTimestamp(LocalDateTime.now());
+          //  ol.setModuleName("adm");
+            ol.setUsername("admin");
+            ol.setUserId("uid");
+
+
+            RequestHandler<EntityManager, Object> entityManagerObjectRequestHandler = em -> {
+
+                //mercht Svs..add(mcht)
+                //Merchat m=new Merchat();
+
+
+                persist(ol);
+                return ol;
+            };
+            callInTransaction(entityManagerObjectRequestHandler);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+
+        try {
+            OperationLog ol=new OperationLog();
+            ol.setAction("增加管理员");
+            ol.setRemark("备注"+getUUid());
+            ol.setTimestamp(LocalDateTime.now());
+            ol.setModuleName("adm");
+            ol.setUsername("admin");
+            ol.setUserId("uid");
+            ol.setTraceId(getUUid());
+
+            RequestHandler<EntityManager, Object> entityManagerObjectRequestHandler = em -> {
+
+                //mercht Svs..add(mcht)
+                //Merchat m=new Merchat();
+
+
+                persist(ol);
+                return ol;
+            };
+            callInTransaction(entityManagerObjectRequestHandler);
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    private static void testAddMcht() {
+
+
+        try {
+            Merchat mcht = new Merchat();
+            mcht.setMchtId("m666");
+            mcht.privatekey = "key666";
+            WormLogUti.logWorm(mcht, "/bootlog.log");
+
+            RequestHandler<EntityManager, Object> entityManagerObjectRequestHandler = em -> {
+
+                //mercht Svs..add(mcht)
+                //Merchat m=new Merchat();..
 
 
                 persist(mcht);
@@ -240,6 +362,14 @@ public class AppJvln {
         app.get("/v3/adms/id/{id}", AdmSvc::findById);
         app.post("/upload", CommSvc::upload);
 
+        registerMapping("/v3/models", CommSvc::models);
+        registerMapping("/apiv1/captcha", CaptchHdr::captcha);
+
+        registerMapping("/api/sessions/list",secury.SessionMng::list);
+        registerMapping("/api/sessions/black",secury.SessionMng::black);
+
+registerMapping("/api/sendMessage",ImSvc::sendMessage);
+        registerMapping("/api/botxx/getUpdates",ImSvc::getUpdates);
 
 //        registerMapping("/exit", Sys::exit);
 //        registerMapping("/exit", Sys::exit);   ..
@@ -371,6 +501,7 @@ public class AppJvln {
 
             String traceId = getUUid();
             ThreadContext.setTraceId(traceId);
+
             //------------api adt lg
             apiAdtLg(ctx, traceId);
 

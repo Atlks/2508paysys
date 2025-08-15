@@ -65,26 +65,15 @@ public class Uti {
         return new Annotation[0];
     }
 
-    /**
-     * 手动校验 实体对象，满足jakarta.validation约束
-     *
-     * @param dto
-     */
-    public static <T> void valdt(T dto) {
 
-        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        Validator validator = factory.getValidator();
-        Set<ConstraintViolation<T>> violations = validator.validate(dto);
 
-        if (!violations.isEmpty()) {
-            String errmsg = "";
-            for (ConstraintViolation<T> violation : violations) {
-                errmsg += ("PropertyPath=" + violation.getPropertyPath() + ",msg=" + violation.getMessage());
-            }
-            throw new IllegalArgumentException("无效参数，cls=" + dto.getClass() + "," + errmsg);
-        }
-
-    }
+//    /**
+//     * 循环dto字段，如果是字符串类型，检查不能包含<>&这三个特殊符号，负责异常报错
+//     * @param dto
+//     * @param <T>
+//     */
+//    private static <T> void chkIncldHtmlTagChar(T dto) {
+//    }
 
     public static <T> Object callFunOrMthd(Object funOrMthd, Object dto, Class<T> dtoClz) throws Throwable {
         if (funOrMthd instanceof Method)

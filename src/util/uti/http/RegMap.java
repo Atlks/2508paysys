@@ -1,25 +1,22 @@
 package util.uti.http;
 
 import com.sun.net.httpserver.HttpContext;
-import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
-import com.sun.net.httpserver.HttpServer;
 import io.javalin.Javalin;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import jakarta.annotation.security.PermitAll;
 import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
 // util.rest.AopFltr4Wb;
 
 import util.annos.CurrentUsername;
+import util.annos.NoTx;
 import util.serverless.ApiGatewayResponse;
 import util.uti.context.ProcessContext;
 import util.uti.context.ThreadContext;
 import util.rest.RequestHandler;
 
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -27,9 +24,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.springframework.util.ClassUtils.hasMethod;
+import static secury.xss.XssUti.valdt;
 import static util.auth.AuthService.chkAuth;
 import static util.auth.JwtUtil.validateToken;
-import static util.rest.AopFltr.newAopFltr;
 import static util.uti.Uti.*;
 import static util.uti.http.HttpUti.*;
 import static util.uti.http.HttpUti.toDto;
@@ -179,29 +176,30 @@ public class RegMap {
 //        System.out.println(path);
 //        System.out.println("endfun _registerMapping");
 //    }
-    private static void write(HttpExchange httpExchange,  Object rzt) throws IOException {
-        String mediaType=httpExchange.getResponseHeaders().getFirst("Content-Type");
-        if (mediaType.contains(MediaType.TEXT_PLAIN)  ) {
-            writeTxt(rzt.toString(), httpExchange);
-        } else if (mediaType.contains("image/png")) {
-            // writeImg(rzt,httpExchange);
-        } else
-            writeJson(rzt, httpExchange);
-    }
-    public static void write(HttpExchange httpExchange, String mediaType, Object rzt) throws IOException {
-        if (MediaType.TEXT_PLAIN.equals(mediaType)) {
-            writeTxt(rzt.toString(), httpExchange);
-        } else if (mediaType.equals("image/png")) {
-            // writeImg(rzt,httpExchange);
-        } else
-            writeJson(rzt, httpExchange);
-    }
+//    private static void write(HttpExchange httpExchange,  Object rzt) throws IOException {
+//        String mediaType=httpExchange.getResponseHeaders().getFirst("Content-Type");
+//        if (mediaType.contains(MediaType.TEXT_PLAIN)  ) {
+//            writeTxt(rzt.toString(), httpExchange);
+//        } else if (mediaType.contains("image/png")) {
+//            // writeImg(rzt,httpExchange);
+//        } else
+//            writeJson(rzt, httpExchange);
+//    }
+//    public static void write(HttpExchange httpExchange, String mediaType, Object rzt) throws IOException {
+//        if (MediaType.TEXT_PLAIN.equals(mediaType)) {
+//            writeTxt(rzt.toString(), httpExchange);
+//        } else if (mediaType.equals("image/png")) {
+//            // writeImg(rzt,httpExchange);
+//        } else
+//            writeJson(rzt, httpExchange);
+//    }
 
 //    @NotNull
 //    public static Object getDto(Method m, HttpExchange httpExchange) throws Exception {
 //        Class<?> dtoClz = m.getParameterTypes()[0];
-////            Object dto = toDto(httpExchange, dtoClz);
-////            valdt(dto);
+
+    /// /            Object dto = toDto(httpExchange, dtoClz);
+    /// /            valdt(dto);
 //        Object dto = getDtoClzRcdTypeNwzCurrUfld(httpExchange, dtoClz);
 //        if (needLoginUserAuth(m)) {
 //            injectCurrUserFldV2(dto);
@@ -210,12 +208,11 @@ public class RegMap {
 //        validDtoByMe(dto);
 //        return dto;
 //    }
-
     private static void injectCurrUserFldV2(Object dto) throws IllegalAccessException {
         Field[] flds = dto.getClass().getDeclaredFields();
         for (Field fld : flds) {
             if (fld.isAnnotationPresent(CurrentUsername.class))
-                //if (needLoginUserAuth(targetThreadLocal.get())) {
+            //if (needLoginUserAuth(targetThreadLocal.get())) {
             {
                 String currentUser = getCurrentUser();
                 fld.set(dto, currentUser);
@@ -293,6 +290,9 @@ public class RegMap {
      */
     public static <DtoType> void registerMapping(String path, RequestHandler<DtoType, Object> fun
     ) {
+
+      //  ESAPI.logger().info(Logger.SECURITY_SUCCESS, "User  successful");
+
         //get raw fun(dto    name,type .to aop log
 
         Javalin javalinApp = ProcessContext.appJvl;
@@ -302,34 +302,39 @@ public class RegMap {
             System.out.println("fun registerMapping(p=" + path + ",fun=" + fun + ")");
             setThrdHttpContext(ctx);
             Class<DtoType> lambdaMethodParamFirstType = fun.getLambdaMethodParamFirstType();
+            Method mth = fun.getLambdaMethod();
             System.out.println("fun registerMapping(p=" + path + ",fun=" + fun.getLambdaMethodName() + "<" + lambdaMethodParamFirstType.getName() + ">");
             Context ct1 = (Context) ctx;
 
-           // String path=ctx.path();
+            // String path=ctx.path();
             //------------chk auth
             chkAuth(ctx);
 
             //  ctx.map
             Map<String, List<String>> mp = ct1.queryParamMap();
             ThreadContext.currHttpParamMap.set(mp);
-            ThreadContext.currUrlPath.set(ctx.path());;
+            ThreadContext.currUrlPath.set(ctx.path());
+            ;
 
 
             //--------------cvt dto
             DtoType dto;
-            if( isMapClass(lambdaMethodParamFirstType)   )
-            {
-                  dto= (DtoType) mp;
-            }else{
-                  dto =  util.msc.HttpUti.toDto(mp, lambdaMethodParamFirstType);
+            if (isMapClass(lambdaMethodParamFirstType)) {
+                dto = (DtoType) mp;
+            } else {
+                dto = util.msc.HttpUti.toDto(mp, lambdaMethodParamFirstType);
                 valdt(dto);
             }
 
 
-
-
             //------auto tx ,commit n  roolback
-            try {
+            if (mth.isAnnotationPresent(NoTx.class)) {
+                System.out.println("fun " + fun.getLambdaMethodName() + "(" + encodeJson(dto));
+                rzt = fun.apply(dto);
+                System.out.println("endfun " + fun.getLambdaMethodName());
+
+            } else {
+
                 rzt = callInTransaction(em -> {
 
                     System.out.println("fun " + fun.getLambdaMethodName() + "(" + encodeJson(dto));
@@ -337,15 +342,27 @@ public class RegMap {
                     System.out.println("endfun " + fun.getLambdaMethodName());
                     return apply;
                 });
-            } catch (Throwable e) {
-                throw e;
-                //throwAsRtmExcptn(e);
+
             }
 
 
             //  ctx.res.setCharacterEncoding("UTF-8");
-            ctx.contentType("application/json; charset=UTF-8");
-            ctx.result(encodeJson( new ApiGatewayResponse(rzt)));
+            Produces prdAnno = mth.getAnnotation(Produces.class);
+            if (prdAnno == null) {
+                ctx.contentType("application/json; charset=UTF-8");
+                ctx.result(encodeJson(new ApiGatewayResponse(rzt)));
+            } else if (prdAnno != null) {
+                String conxType = prdAnno.value()[0];
+                if (conxType.equals("image/png")) {
+
+                } else {
+                    ctx.contentType("application/json; charset=UTF-8");
+                    ctx.result(encodeJson(new ApiGatewayResponse(rzt)));
+                }
+            }
+
+
+            ;
             System.out.println("endfun registerMapping");
         };
 
@@ -363,7 +380,7 @@ public class RegMap {
             Object rzt = null;
             System.out.println("fun registerMapping(p=" + path + ",fun=" + fun + ")");
             setThrdHttpContext(ctx);
-            Class<DtoType> lambdaMethodParamFirstType=dtoCls;
+            Class<DtoType> lambdaMethodParamFirstType = dtoCls;
             System.out.println("fun registerMapping(p=" + path + ",fun=" + fun.getLambdaMethodName() + "<" + lambdaMethodParamFirstType.getName() + ">");
             Context ct1 = (Context) ctx;
             //  ctx.map
@@ -395,12 +412,11 @@ public class RegMap {
     }
 
 
-
     public static void registerMappingHttpHdlr(String path, HttpHandler httpHandler) {
         //  ProcessContext.httpServer.createContext("/", httpHandler);
 
         HttpContext httpContext = ProcessContext.httpServer.createContext(path, httpHandler);
-     //   httpContext.getFilters().add(new AopFltr4Wb());
+        //   httpContext.getFilters().add(new AopFltr4Wb());
     }
 //
 //    /**
@@ -430,20 +446,20 @@ public class RegMap {
 //        ;
 //    }
 
-    private static <T> void _registerMapping(String path, RequestHandler<T, Object> fun, HttpExchange httpExchange) throws Throwable {
-        Class lambdaMethodParamFirstType = fun.getLambdaMethodParamFirstType();
-        String fname = fun.getLambdaMethodName();
-        System.out.println("fun _registerMapping(p=" + path + ",fun=" + fname + "<" + lambdaMethodParamFirstType.getName() + ">");
+//    private static <T> void _registerMapping(String path, RequestHandler<T, Object> fun, HttpExchange httpExchange) throws Throwable {
+//        Class lambdaMethodParamFirstType = fun.getLambdaMethodParamFirstType();
+//        String fname = fun.getLambdaMethodName();
+//        System.out.println("fun _registerMapping(p=" + path + ",fun=" + fname + "<" + lambdaMethodParamFirstType.getName() + ">");
+//
+//
+//        Object rzt = callFun(fun, lambdaMethodParamFirstType, fname, httpExchange);
+//
+//        write(rzt, httpExchange);
+//        System.out.println("endfun _registerMapping");
+//    }
 
-
-        Object rzt = callFun(fun, lambdaMethodParamFirstType, fname, httpExchange);
-
-        write(rzt, httpExchange);
-        System.out.println("endfun _registerMapping");
-    }
-
-    private static void write(Object rzt, HttpExchange httpExchange) throws IOException {
-        write(httpExchange,rzt);
-    }
+//    private static void write(Object rzt, HttpExchange httpExchange) throws IOException {
+//        write(httpExchange,rzt);
+//    }
 
 }

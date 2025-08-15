@@ -300,6 +300,22 @@ public class HbntUtil {
     }
 
 
+    public static @NotNull List<?> getResultListMap(@NotBlank String sql, @NotNull Session session) throws Exception {
+
+        ifIsBlank(sql);
+        String mthClr = colorStr("getListBySql", YELLOW_bright);
+        System.out.println("\r\n▶\uFE0Ffun " + mthClr + "(" + (sql));
+        NativeQuery nativeQuery = session.createNativeQuery(sql, Map.class);
+        // setPrmts4sql(sqlprmMap, nativeQuery);
+
+        //       .setParameter("age", 18);
+        @NotNull
+        List<?> list1 = nativeQuery.getResultList();
+        System.out.println("✅endfun getListBySql.ret=list,listsize=" + list1.size());
+        return list1;
+    }
+
+
     public static @NotNull List<?> getResultList(@NotBlank String sql, @NotNull Session session) throws Throwable {
 
         ifIsBlank(sql);

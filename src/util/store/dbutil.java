@@ -5,7 +5,9 @@ package util.store;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.annotation.DbType;
 import model.baseObj;
+import org.jetbrains.annotations.NotNull;
 import util.model.common.PageResult;
 import org.hibernate.Session;
 import org.hibernate.query.NativeQuery;
@@ -53,6 +55,17 @@ import static util.uti.context.ProcessContext.jdbcUrl;
  */
 public class dbutil {
 
+
+    @NotNull
+    public static DbType getDbType(String jdbcUrl) {
+        if (jdbcUrl.startsWith("jdbc:sqlserver")) {
+            return DbType.SQL_SERVER;
+        }
+        if (jdbcUrl.startsWith("jdbc:mysql")) {
+            return DbType.MYSQL;
+        }
+        return DbType.POSTGRE_SQL;
+    }
     public static void main(String[] args) throws Exception {
         HashMap m = new HashMap();
         m.put("id", "id1");

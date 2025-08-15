@@ -10,6 +10,8 @@ import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.DynamicInsert;
 import org.hibernate.annotations.DynamicUpdate;
 
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 
 
@@ -28,6 +30,12 @@ public class TxPayReq {
 
     @Id
     private String outTradeNo;
+
+
+    /**
+     * 交易限额
+     */
+    @Min(1)  @Max(999999)
     private BigDecimal amount;
     private String appid;
     private String mchid;

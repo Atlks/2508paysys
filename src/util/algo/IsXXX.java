@@ -25,6 +25,8 @@ public class IsXXX {
             throw  new StrIsBlankEx("val(sql) is empty");
     }
 
+
+
     public static void isblankThrEx(@NotBlank String sql) throws StrIsBlankEx {
         if(isblank(sql))
             throw  new StrIsBlankEx("val(sql) is empty");
